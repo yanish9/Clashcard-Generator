@@ -1,3 +1,11 @@
+
+//"node card.js" will display a prompt to enter a question and save it
+
+// "node card.js basic" will display a random question from the basic.txt file
+
+// "node card.js cloze" will display a random question from the cloze.txt file
+
+
 var BasicFlashcard  = require("./BasicFlashcard");
 var ClozeFlashcard = require("./ClozeFlashcard");
 var inquirer = require("inquirer");
