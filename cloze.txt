@@ -1,0 +1,2 @@
+cloze:okakwa . amksa:amksa
+cloze:A . is used to cut metals:machine

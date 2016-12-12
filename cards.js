@@ -15,15 +15,51 @@ if (process.argv[2] === undefined){
 displayBasicCloze();
 
 }
-else 
-{
- readQuestionsFile();
+else if (process.argv[2] === "basic") {
+    readBasicFile();
+}
+else if (process.argv[2] === "cloze") {
+ 
+ readClozeFile();
 }
 
 
-function readQuestionsFile(){
+
+function readClozeFile(){
+
+fs.readFile("cloze.txt",  "utf8" , read);
+
+
+
+function read(err, data){
 var questionArr = [];
-fs.readFile("log.txt",  "utf8" , read);
+if (err) {
+		console.log(err);
+		return;
+
+	}
+
+questionArr = data.split("\n");
+
+for (var i = 0 ; i < questionArr.length ; i++){ 
+
+    var questionAnswer = questionArr[i].split(":");
+
+
+if (questionAnswer[0] === "cloze"){
+ var object = new ClozeFlashcard(questionAnswer[1], questionAnswer[2]);
+   arrayCloze.push(object);
+
+}
+}
+displayGame();
+}
+}
+
+
+function readBasicFile(){
+var questionArr = [];
+fs.readFile("basic.txt",  "utf8" , read);
 
 
 
@@ -48,11 +84,6 @@ if (questionAnswer[0] === "basic"){
    // console.log(arrayBasic);
   
 }
-else if (questionAnswer[0] === "cloze"){
- var object = new ClozeFlashcard(questionAnswer[1], questionAnswer[2]);
-   arrayCloze.push(object);
-
-}
 }
 
 displayGame();
@@ -75,9 +106,43 @@ function displayGame(){
        promptAnswerBasic(); 
 
    }
+
+   else {
+
+ var length = arrayCloze.length;
+        random = Math.floor(Math.random() * length) ;
+      var question = arrayCloze[random].text;
+      
+
+     question = question.substring(0, question.indexOf(".")) + "_______" + question.substring(question.indexOf(".")+1 );
+     console.log(question);
+promptAnswerCloze();
+   }
 }
 
 
+
+function promptAnswerCloze(){
+
+    inquirer.prompt([
+        {
+            name: "answer",
+            type: "input",
+            message: "Enter missing part: "
+
+        }
+    ]).then(function(ans){
+
+        if (arrayCloze[random].cloze === ans.answer) {
+            console.log("Correct");
+            
+        }
+        else {
+            console.log("Wrong.. The answer is ");
+            arrayCloze[random].showCloze();
+        }
+    });
+}
 
 function promptAnswerBasic(){
 
@@ -144,7 +209,7 @@ else if (answer.choice === "Cloze Flashcard") {
     inquirer.prompt([
         {
             name: "question",
-            message: "Enter text: ",
+            message: "Enter text(put a dot where the answer should be): ",
             type: "input",
             default: ''
         },
@@ -174,21 +239,27 @@ function decideToPromptAgain(an){
 
 function saveAndpromptAnother (q){
 
+
+var log = type + ":" +  q.question + ":" + q.answer + "\n";
+
 if (type === "basic") {
     
 
+
 var basic = new BasicFlashcard(q.question, q.answer);
 arr.push(basic);
+
+fs.appendFile("basic.txt", log, errors);
 }
 else{
     
 var cloze = new ClozeFlashcard(q.question, q.answer);
 arr.push(basic);
+fs.appendFile("cloze.txt", log, errors);
 }
 
-var log = type + ":" +  q.question + ":" + q.answer + "\n";
 console.log(log);
- fs.appendFile("log.txt", log, errors);
+ 
 
 
  function errors(err){
